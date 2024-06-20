@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from bs4 import BeautifulSoup
 import time
 
 SLEEP_TIME = 2
@@ -43,6 +44,48 @@ for i in range(1, MAX_PAGINATION):
         break
     temp_urls = [element.get_attribute("href") for element in book_elements]
     book_urls.extend(temp_urls)
+
+
+#######################################
+# Task 4: Scraping Book Detail Page
+#######################################
+
+driver.get(book_urls[0])
+time.sleep(SLEEP_TIME)
+content_div = driver.find_element(By.XPATH, "//div[@class = 'content']")
+
+inner_html = content_div.get_attribute("innerHTML")
+
+soup = BeautifulSoup(inner_html, "html.parser")
+
+# Book name
+name_elem = soup.find("h1")
+book_name = name_elem.text
+
+# Book Price
+price_elem = soup.find("p", attrs={"class": "price_color"})
+book_price = price_elem.text
+
+# Book Star Rating
+import re
+regex = re.compile("^star-rating ")
+star_elem = soup.find("p", attrs={"class": regex})
+book_star_count = star_elem["class"][-1]
+
+# Book Description
+desc_elem = soup.find("div", attrs={"id": "product_description"}).find_next_sibling()
+book_desc = desc_elem.text
+
+# Scrape Information in the table under Product Information
+product_info = {}
+table_rows = soup.find("table").find_all("tr")
+for row in table_rows:
+    key = row.find("th").text
+    value = row.find("td").text
+    product_info[key] = value
+
+
+
 
 
 
