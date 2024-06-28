@@ -5,35 +5,37 @@ from bs4 import BeautifulSoup
 import time
 import re
 import pandas as pd
+import numpy as np
 
 SLEEP_TIME = 0.25
 BASE_URL = "https://books.toscrape.com"
 
-options = webdriver.ChromeOptions()
-options.add_argument("--start-maximized")
-driver = webdriver.Chrome(options)
 
-driver.get(BASE_URL)
-time.sleep(SLEEP_TIME)
-
-category_elements_xpath = "//ul[@class='nav nav-list']//li//ul//a"
-category_elements = driver.find_elements(By.XPATH, category_elements_xpath)
-category_urls = [(element.get_attribute("href"), element.text.strip()) for element in category_elements]
-
-MAX_PAGINATION = 2
-book_elements_xpath = "//div[@class = 'image_container']//a"
-book_urls = []
-
-for url, category in category_urls:
-    for i in range(1, MAX_PAGINATION):
-        update_url = url if i == 1 else url.replace("index", f"page-{i}")
-        driver.get(update_url)
-        time.sleep(SLEEP_TIME)
-        book_elements = driver.find_elements(By.XPATH, book_elements_xpath)
-        if not book_elements:
-            break
-        temp_urls = [element.get_attribute("href") for element in book_elements]
-        book_urls.extend(temp_urls)
+# options = webdriver.ChromeOptions()
+# options.add_argument("--start-maximized")
+# driver = webdriver.Chrome(options)
+#
+# driver.get(BASE_URL)
+# time.sleep(SLEEP_TIME)
+#
+# category_elements_xpath = "//ul[@class='nav nav-list']//li//ul//a"
+# category_elements = driver.find_elements(By.XPATH, category_elements_xpath)
+# category_urls = [(element.get_attribute("href"), element.text.strip()) for element in category_elements]
+#
+# MAX_PAGINATION = 2
+# book_elements_xpath = "//div[@class = 'image_container']//a"
+# book_urls = []
+#
+# for url, category in category_urls:
+#     for i in range(1, MAX_PAGINATION):
+#         update_url = url if i == 1 else url.replace("index", f"page-{i}")
+#         driver.get(update_url)
+#         time.sleep(SLEEP_TIME)
+#         book_elements = driver.find_elements(By.XPATH, book_elements_xpath)
+#         if not book_elements:
+#             break
+#         temp_urls = [element.get_attribute("href") for element in book_elements]
+#         book_urls.extend(temp_urls)
 
 
 def initialize_driver():
@@ -42,8 +44,8 @@ def initialize_driver():
     driver = webdriver.Chrome(options)
     return driver
 
-def get_category_urls(driver, url):
 
+def get_category_urls(driver, url):
     driver.get(url)
     time.sleep(SLEEP_TIME)
 
@@ -53,8 +55,8 @@ def get_category_urls(driver, url):
 
     return category_urls
 
-def get_book_urls(driver, url):
 
+def get_book_urls(driver, url):
     MAX_PAGINATION = 10
     book_elements_xpath = "//div[@class = 'image_container']//a"
     book_urls = []
@@ -67,9 +69,10 @@ def get_book_urls(driver, url):
         if not book_elements:
             break
         temp_urls = [element.get_attribute("href") for element in book_elements]
-        book_urls.extend(book_elements)
+        book_urls.extend(temp_urls)
 
     return book_urls
+
 
 def get_book_detail(driver, url):
     """
@@ -97,8 +100,12 @@ def get_book_detail(driver, url):
     book_star_count = book_star_elem["class"][-1]
 
     # Book Description
-    desc_elem = soup.find("div", attrs={"id": "product_description"}).find_next_sibling()
-    book_desc = desc_elem.text
+    desc_elem = soup.find("div", attrs={"id": "product_description"})
+    book_desc = np.nan
+    if desc_elem:
+        desc_elem = desc_elem.find_next_sibling()
+        book_desc = desc_elem.text
+
 
     # Scrape Information in the table under Product Information
     product_info = {}
@@ -132,6 +139,7 @@ def main():
     df = pd.DataFrame(data)
 
     return df
+
 
 df = main()
 print(df.head())
