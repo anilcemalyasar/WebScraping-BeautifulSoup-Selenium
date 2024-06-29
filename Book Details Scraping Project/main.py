@@ -11,32 +11,6 @@ SLEEP_TIME = 0.25
 BASE_URL = "https://books.toscrape.com"
 
 
-# options = webdriver.ChromeOptions()
-# options.add_argument("--start-maximized")
-# driver = webdriver.Chrome(options)
-#
-# driver.get(BASE_URL)
-# time.sleep(SLEEP_TIME)
-#
-# category_elements_xpath = "//ul[@class='nav nav-list']//li//ul//a"
-# category_elements = driver.find_elements(By.XPATH, category_elements_xpath)
-# category_urls = [(element.get_attribute("href"), element.text.strip()) for element in category_elements]
-#
-# MAX_PAGINATION = 2
-# book_elements_xpath = "//div[@class = 'image_container']//a"
-# book_urls = []
-#
-# for url, category in category_urls:
-#     for i in range(1, MAX_PAGINATION):
-#         update_url = url if i == 1 else url.replace("index", f"page-{i}")
-#         driver.get(update_url)
-#         time.sleep(SLEEP_TIME)
-#         book_elements = driver.find_elements(By.XPATH, book_elements_xpath)
-#         if not book_elements:
-#             break
-#         temp_urls = [element.get_attribute("href") for element in book_elements]
-#         book_urls.extend(temp_urls)
-
 
 def initialize_driver():
     options = webdriver.ChromeOptions()
@@ -144,3 +118,38 @@ def main():
 df = main()
 print(df.head())
 print(df.shape)
+
+df.to_csv("books.csv", index=False)
+
+
+
+
+
+
+
+
+# options = webdriver.ChromeOptions()
+# options.add_argument("--start-maximized")
+# driver = webdriver.Chrome(options)
+#
+# driver.get(BASE_URL)
+# time.sleep(SLEEP_TIME)
+#
+# category_elements_xpath = "//ul[@class='nav nav-list']//li//ul//a"
+# category_elements = driver.find_elements(By.XPATH, category_elements_xpath)
+# category_urls = [(element.get_attribute("href"), element.text.strip()) for element in category_elements]
+#
+# MAX_PAGINATION = 2
+# book_elements_xpath = "//div[@class = 'image_container']//a"
+# book_urls = []
+#
+# for url, category in category_urls:
+#     for i in range(1, MAX_PAGINATION):
+#         update_url = url if i == 1 else url.replace("index", f"page-{i}")
+#         driver.get(update_url)
+#         time.sleep(SLEEP_TIME)
+#         book_elements = driver.find_elements(By.XPATH, book_elements_xpath)
+#         if not book_elements:
+#             break
+#         temp_urls = [element.get_attribute("href") for element in book_elements]
+#         book_urls.extend(temp_urls)
